@@ -1,4 +1,4 @@
-import { ServerRequest, multiParser, FormFile } from '../deps.ts'
+import { ServerRequest } from '../deps.ts'
 
 export class BodyParser {
   #request: ServerRequest
@@ -97,27 +97,12 @@ export class BodyParser {
     })
   }
 
-  getMultipart(): Promise<Record<string, FormFile | string>> {
-    return new Promise(async (resolve, reject) => {
-      if (this.#request.headers.get("content-type")?.startsWith("multipart/form-data")) {
-        try {
-          const form = await multiParser(this.#request)
-          resolve(form)
-        } catch (e) {
-          reject("bodyparser: multipart/form-data data is invalid")
-        }
-      } else {
-        reject("bodyparser: Content-Type not start with 'multipart/form-data', can't parse form")
-      }
-    })
-  }
-
   getGraphql() {
     return this.getJSON()
   }
 
   getFile(){
-    
+
   }
 
 }
