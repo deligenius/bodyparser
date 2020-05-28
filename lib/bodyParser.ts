@@ -5,14 +5,16 @@ export class BodyParser {
   #decoder: TextDecoder
   #body: () => Promise<string>
 
-  constructor(request: ServerRequest) {
+  constructor(request: any) {
     this.#request = request
     this.#decoder = new TextDecoder()
     this.#body = this.getBody
   }
 
   private async getBody(): Promise<string> {
-    return this.#decoder.decode(await Deno.readAll(this.#request.body))
+    let buffer = await Deno.readAll(this.#request.body)
+    let body = this.#decoder.decode(buffer)
+    return body
   }
 
   private getTextByHeader(header: string): Promise<string> {
@@ -66,7 +68,7 @@ export class BodyParser {
           const parsedJSON = JSON.parse(body)
           resolve(parsedJSON)
         } catch (e) {
-          reject("bodyparser: JSON data is invalid")
+          reject("bodyparser: JSON format is invalid - " + body)
         }
       }
       else {
@@ -79,6 +81,7 @@ export class BodyParser {
     return new Promise(async (resolve, reject) => {
       if (this.#request.headers.get("content-type") === 'application/x-www-form-urlencoded') {
         let body = await this.#body()
+        console.log(body)
         try {
           const searchParams = new URLSearchParams(body)
           const form: Record<string, string> = {}
@@ -101,7 +104,8 @@ export class BodyParser {
     return this.getJSON()
   }
 
-  getFile(){
+  // Todo: Binary save to file 
+  getFile() {
 
   }
 
