@@ -1,1 +1,1 @@
-export {BodyParser} from './lib/bodyParser.ts'
+export * as bodyParser from './lib/bodyParser.ts'
