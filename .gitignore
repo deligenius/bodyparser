@@ -1,3 +1,5 @@
 src/
-node_modules/
 deno/
+
+package.json
+package-lock.json
