@@ -1,5 +1,5 @@
 import { bodyParser } from "../mod.ts"
-import { Context } from '../deps.ts'
+import { Context, Router } from '../deps.ts'
 
 export function query() {
   return async function (ctx: Context<any>, next: Function) {
@@ -13,10 +13,15 @@ export function query() {
   }
 }
 
-export function params(route: string) {
-  return async function (ctx: Context<any>, next: Function) {
+export function params(paramRoute: string) {
+  return async function (ctx: Context<any>, next: Function, router?: Router<any>) {
     try {
-      ctx.req.params = await bodyParser.getParams(ctx.req, route)
+      let url = ctx.req.url
+      if (router) {
+        let routerPathIndex = url.indexOf(router.basePath)
+        url = url.substring(routerPathIndex + router.basePath.length)
+      }
+      ctx.req.params = await bodyParser.getParams(url, paramRoute)
     }
     catch (e) {
       ctx.req.params = {}
