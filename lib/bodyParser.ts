@@ -150,18 +150,20 @@ export function getFile(req: ServerRequest, fileExt: string)
 }
 
 export function getParams(url: string, route: string): Promise<Record<string, string>> {
+  let paramRegex = /\/?:(?<param>\w+)\/?/g
+  let paramFound = route.matchAll(paramRegex)
+  for (let name of paramFound) {
+    //    [ /:path/ , path ]
+    const [originName, paramName] = name
+    // convert name to regex
+    route = route.replace(originName, `/(?<${paramName}>\\w+)/?`)
+  }
+  let routeRegex = new RegExp(route)
+
   return new Promise((resolve, reject) => {
     try {
-      let paramRegex = /\/?:(?<param>\w+)\/?/g
-      let paramFound = route.matchAll(paramRegex)
-      for (let name of paramFound) {
-        //    [ /:path/ , path ]
-        const [originName, paramName] = name
-        // convert name to regex
-        route = route.replace(originName, `/(?<${paramName}>\\w+)/?`)
-      }
       // use new regex to scan url 
-      let paramsMatch = url.match(new RegExp(route))
+      let paramsMatch = url.match(routeRegex)
       let result: Record<string, string> = {}
       for (let key in paramsMatch?.groups) {
         let value = paramsMatch?.groups[key]!
