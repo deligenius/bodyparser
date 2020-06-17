@@ -1,4 +1,4 @@
-import { multiParser, ServerRequest } from '../deps.ts'
+import { multiParser, ServerRequest , posix, extname, HttpResponse} from '../deps.ts'
 import { xmljs } from './port/xml-js.ts'
 import { mime } from './port/mime.ts'
 
@@ -172,6 +172,29 @@ export function getParams(url: string, route: string): Promise<Record<string, st
       resolve(result)
     } catch (e) {
       reject(`bodyparser: can't parse Params, as the route is invalid`)
+    }
+  })
+}
+
+export async function getStatic(req: ServerRequest, rootPath:string, servePath = "./"){
+  return new Promise<HttpResponse>(async(resolve, reject) => {
+    try {
+      const normalizedUrl = decodeURIComponent(req.url);
+      const fsPath = posix.join(rootPath, normalizedUrl);
+      const contentType = mime.lookup(extname(fsPath));
+      const fileInfo = await Deno.stat(fsPath);
+      const headers = new Headers();
+      headers.set("content-length", fileInfo.size.toString());
+      if (contentType) {
+        headers.set("content-type", <string> contentType);
+      }
+      const file = await Deno.open(fsPath);
+      req.done.then(() => {
+        file.close();
+      });
+      resolve({status: 200 , headers, body: file})
+    } catch (e) {
+      reject("can't find the file" + req.url)
     }
   })
 }

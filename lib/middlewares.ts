@@ -125,3 +125,15 @@ export function file(fileExt: string) {
     next()
   }
 }
+
+export function serveStatic(rootPath: string){
+  return async function (ctx: Context<any>, next: Function) {
+    try {
+      const response = await bodyParser.getStatic(ctx.req, rootPath)
+      ctx.req.respond(response)
+    }
+    catch (e) {
+      next()
+    }
+  }
+}
