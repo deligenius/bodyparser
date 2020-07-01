@@ -1,0 +1,11 @@
+name: bodyparser
+description: pre-configured middlewares for deligenius framework
+version: 1.0.0
+entry: ./mod.ts
+stable: true
+unlisted: false
+fmt: true
+repository: https://github.com/deligenius/bodyparser
+files:
+  - ./**/*
+  - ./README.md
