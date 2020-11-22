@@ -1,5 +1,4 @@
 import {
-  multiParser,
   ServerRequest,
   posix,
   extname,
@@ -129,10 +128,6 @@ export function getUrlencoded(
 
 export function getGraphql(req: ServerRequest) {
   return getJSON(req);
-}
-
-export function getForm(req: ServerRequest) {
-  return multiParser(req);
 }
 
 export function getFile(
